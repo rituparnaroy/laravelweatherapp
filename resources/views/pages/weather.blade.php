@@ -27,18 +27,13 @@
                     <div class="col-12 ">
                         <h3>Average temperature of {{ $city }}, {{ $country }} for next 10 days is <mark> {{ $avgTemperature ?? '' }} </mark>&deg;c </h3>
                     </div>
-            @endif
+                @endif
+                @if (!empty($message)) 
+                    <div class="col-12">
+                        <h3 class="text-danger">{{ $message }}</h3>
+                    </div>
+                @endif
             </div>
             
         </div>
-
-    @if (!empty($message)) 
-        <div class="container">
-            <div class="row row-content">
-                <div class="col-12">
-                    {{ $message }}
-                </div>
-            </div>
-        </div>
-    @endif
     @endsection

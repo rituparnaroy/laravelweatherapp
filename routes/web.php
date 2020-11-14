@@ -17,4 +17,10 @@ use Illuminate\Support\Facades\Route;
 //     return view('welcome');
 // });
 
-Route::resource('/', '\App\Http\Controllers\WeatherController');
+Route::get('/', '\App\Http\Controllers\WeatherController@index');
+
+Route::post('/', '\App\Http\Controllers\WeatherController@getWeather');
+
+Auth::routes();
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

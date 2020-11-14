@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 
 use App\Http\Requests;
 use GuzzleHttp\Client;
@@ -16,7 +18,7 @@ class WeatherController extends Controller
      */
     public function index()
     {
-        return view('weather');
+        return view('pages.weather');
     }
 
     /**
@@ -37,7 +39,7 @@ class WeatherController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        dd($request->all());
     }
 
     /**
@@ -85,22 +87,51 @@ class WeatherController extends Controller
         //
     }
 
+    /**
+     * Get requested data.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+
     public function getWeather(Request $request)
     {
-        dd($request);
-        if (!empty($request->city) && !empty($request->country)) {
+        $this->validate($request,[
+            'city'=>'required',
+            'countrycode'=>'required|max:2'
+         ]);
+
+        if (!empty($request->city) && !empty($request->countrycode)) {
+            $city = Str::lower($request->city);
+            $countrycode = Str::lower($request->countrycode);
+            $cacheKey = 'key' . $city . $countrycode;
             try{
-                $client = new Client();
-                $weatherResponse = $client->request('GET','https://api.weatherbit.io/v2.0/current?city=Amsterdam,NL&key=' . getenv('WEATHERBIT_API_KEY'));
+                if(Cache::has($cacheKey)){
+                    $avgTemperature = Cache::get($cacheKey);
+                }
+                else{
+                    $client = new Client();
+                    $weatherResponse = $client->request('GET','https://api.weatherbit.io/v2.0/forecast/daily?city=' . $city . ',' . $countrycode . '&key=' . getenv('WEATHERBIT_API_KEY') . '&days=10');
     
-                $weather = json_decode($weatherResponse->getBody());
-                dd($weather);
+                    $weather = json_decode($weatherResponse->getBody());
+                    if($weather === null) {
+                        return view('pages.weather', ['message'=> 'City or Countrycode is wrong']);
+                    }
+                    else {
+                        $data = $weather->data;
+                        $avgTemperature = $data[0]->temp;
+                        Cache::put($cacheKey, $avgTemperature, now()->addHours(2));
+                    }
+                }
+                return view('pages.weather', ['avgTemperature' => $avgTemperature, 'city' => Str::ucfirst($city), 'country' => Str::upper($countrycode)]);
+                
+                
             } catch (\Exception $e) {
                 // No exception will be thrown here
                 echo $e->getMessage();
             }
         }else {
-            return view('weather');
+            return view('pages.weather');
         }
         
         

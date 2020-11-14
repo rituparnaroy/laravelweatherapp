@@ -14,6 +14,10 @@
 3. Install dependency, composer install
 4. npm install
 
+## Weatherbit API key
+copy into .env file , 
+WEATHERBIT_API_KEY="16bb59e4e373408db7c22ae01233c577"
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:

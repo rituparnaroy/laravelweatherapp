@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Http\Requests;
+use App\Http\Requests\WeatherRequest;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
-use App\Http\Requests;
 use GuzzleHttp\Client;
 
 class WeatherController extends Controller
@@ -94,12 +95,9 @@ class WeatherController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-    public function getWeather(Request $request)
+    public function getWeather(WeatherRequest $request)
     {
-        $this->validate($request,[
-            'city'=>'required',
-            'countrycode'=>'required|max:2'
-         ]);
+        $validated = $request->validated();
 
         if (!empty($request->city) && !empty($request->countrycode)) {
             $city = Str::lower($request->city);
